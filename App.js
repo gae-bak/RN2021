@@ -1,58 +1,60 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
+import React,  {createContext, Component } from 'react'
 
- import React, {Component} from 'react';
- import type {Node} from 'react';
- import {
-   CameraRoll,
-   SafeAreaView,
-   ScrollView,
-   StatusBar,
-   StyleSheet,
-   Text,
-   useColorScheme,
-   View,
- } from 'react-native';
- 
- import {
-   Colors,
-   DebugInstructions,
-   Header,
-   LearnMoreLinks,
-   ReloadInstructions,
- } from 'react-native/Libraries/NewAppScreen';
- 
- class MainComponent extends Component {
-   constructor() {
-     super()
-     this.state = { lodding: true, data: {}}
-   }
-   componentDidMount() {
-     // simulate ajax call
-     setTimeout(() => {
-       this.setState({
-         loading: false,
-         data: {name: 'Nader Dabit', age: 35}
-       })
-     }, 2000)
-   }
-   render() {
-     if(this.state.loading) {
-       return <Text>Loding</Text>
-     }
-     const { name, age } = this.state.data
-     return (
-       <View>
-         <Text>Name: {name}</Text>
-         <Text>Age: {age}</Text>
-       </View>
-     )
-   }
- }
- 
- export default MainComponent;
+import {StyleSheet, View, Text} from 'react-native'
+
+const ThemeContext = React.createContext()    
+
+
+class Parent extends Component {
+  state = { themeValue: 'light' }    
+  toggleThemeValue = () => {    
+    const value = this.state.themeValue === 'dark' ? 'light' : 'dark'    
+    this.setState({ themeValue: value })    
+  }    
+  render() {
+    return (
+      <ThemeContext.Provider    
+        value={{
+          themeValue: this.state.themeValue,
+          toggleThemeValue: this.toggleThemeValue
+        }}
+      >
+        <View style={styles.container}>
+          <Text>Hello World</Text>
+        </View>
+        <Child1 />
+      </ThemeContext.Provider>
+    );
+  }
+}
+
+const Child1 = () => <Child2 />    
+
+const Child2 = () => (    
+  <ThemeContext.Consumer>
+    {(val) => (
+        <View style={[styles.container, 
+                      val.themeValue === 'dark' && 
+                     { backgroundColor: 'black' }]}>
+          <Text style={styles.text}>Hello from Component2</Text>
+          <Text style={styles.text} 
+                onPress={val.toggleThemeValue}>
+              Toggle Theme Value
+          </Text>
+        </View>
+      )}
+  </ThemeContext.Consumer>
+)
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5FCFF',
+  },
+  text: {
+    fontSize: 22,
+    color: '#666'
+  }
+})
